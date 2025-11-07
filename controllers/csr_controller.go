@@ -208,7 +208,7 @@ func machineNameWithPrefix(machineName string, isHCloudMachine bool) string {
 }
 
 var (
-	constantBareMetalHostnameRegex                = regexp.MustCompile(`^bm-(\S*)-(\d+)$`)
+	constantBareMetalHostnameRegex                = regexp.MustCompile(`^` + regexp.QuoteMeta(infrav1.BareMetalHostNamePrefix) + `(\S*)-(\d+)$`)
 	errNoHetznerBareMetalMachineByProviderIDFound = fmt.Errorf("no HetznerBaremetalMachine by ProviderID found")
 )
 
