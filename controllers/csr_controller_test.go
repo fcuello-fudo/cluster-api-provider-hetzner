@@ -86,12 +86,12 @@ func Test_bmMachineNameFromCSR(t *testing.T) {
 	}{
 		{
 			name:                "first bm machine name",
-			csrUserName:         "system:node:bm-testnode",
+			csrUserName:         "system:node:testnode",
 			expectBMMachineName: "testnode",
 		},
 		{
 			name:                "second bm machine name",
-			csrUserName:         "system:node:bm-otherobject",
+			csrUserName:         "system:node:otherobject",
 			expectBMMachineName: "otherobject",
 		},
 	}
@@ -121,7 +121,7 @@ func Test_machineNameFromCSR(t *testing.T) {
 		},
 		{
 			name:              "first bm machine name",
-			csrUserName:       "system:node:bm-testnode",
+			csrUserName:       "system:node:testnode",
 			isHCloudMachine:   false,
 			expectMachineName: "testnode",
 		},
@@ -133,7 +133,7 @@ func Test_machineNameFromCSR(t *testing.T) {
 		},
 		{
 			name:              "second bm machine name",
-			csrUserName:       "system:node:bm-otherobject",
+			csrUserName:       "system:node:otherobject",
 			isHCloudMachine:   false,
 			expectMachineName: "otherobject",
 		},
