@@ -37,7 +37,7 @@ const (
 	DeprecatedBareMetalMachineFinalizer = "hetznerbaremetalmachine.infrastructure.cluster.x-k8s.io"
 
 	// BareMetalHostNamePrefix is a prefix for all hostNames of bare metal servers.
-	BareMetalHostNamePrefix = "bm-"
+	BareMetalHostNamePrefix = ""
 )
 
 var errUnknownSuffix = errors.New("unknown suffix")
@@ -67,7 +67,7 @@ const (
 // HetznerBareMetalMachineSpec defines the desired state of HetznerBareMetalMachine.
 type HetznerBareMetalMachineSpec struct {
 	// ProviderID will be the hetznerbaremetalmachine which is set by the controller
-	// in the `hcloud://bm-<server-id>` format.
+	// in the `hrobot://<server-id>` format.
 	// +optional
 	ProviderID *string `json:"providerID,omitempty"`
 
