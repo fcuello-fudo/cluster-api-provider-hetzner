@@ -420,9 +420,6 @@ func (s *Service) associate(ctx context.Context) error {
 	// ensure references are set
 	s.setReferencesOnHost(host)
 
-	// ensure that the specs are correctly updated
-	s.setHostSpec(host)
-
 	if err := analyzePatchError(helper.Patch(ctx, host), false); err != nil {
 		reterr := fmt.Errorf("failed to patch host: %w", err)
 		v1beta1conditions.MarkFalse(

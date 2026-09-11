@@ -43,12 +43,12 @@ DRIVE%v /dev/%s`, drives, i+1, osDevice)
 		}
 	}
 
-	hostName := fmt.Sprintf(`
-HOSTNAME %s
-SWRAID %v`, asi.hostName, installImageSpec.Swraid)
+	hostName := fmt.Sprintf(`HOSTNAME %s`, asi.hostName)
+
+  swraid := fmt.Sprintf(`SWRAID %v`, installImageSpec.Swraid)
 	if installImageSpec.Swraid == 1 {
-		hostName = fmt.Sprintf(`%s
-SWRAIDLEVEL %v`, hostName, installImageSpec.SwraidLevel)
+		swraid += fmt.Sprintf(`
+SWRAIDLEVEL %v`, installImageSpec.SwraidLevel)
 	}
 
 	var partitions string
@@ -80,7 +80,8 @@ IMAGE %s`, asi.image)
 %s
 %s
 %s
-%s`, drives, hostName, partitions, lvmDefinitions, btrfsDefinitions, image)
+%s
+%s`, drives, hostName, swraid, partitions, lvmDefinitions, btrfsDefinitions, image)
 	return output
 }
 
