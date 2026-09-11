@@ -224,7 +224,7 @@ type InstallImage struct {
 	// +optional
 	// +kubebuilder:default=1
 	// +kubebuilder:validation:Enum=0;1;5;6;10;
-	SwraidLevel int `json:"swraidLevel,omitempty"`
+	SwraidLevel int `json:"swraidLevel"`
 }
 
 // UsesImageURLCommand reports whether the machine should be provisioned via image-url-command.
