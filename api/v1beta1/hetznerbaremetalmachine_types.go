@@ -222,7 +222,7 @@ type InstallImage struct {
 	// SwraidLevel defines the SWRAIDLEVEL in InstallImage. Only relevant if the raid is enabled.
 	// Pick one of 0,1,5,6,10. Ignored if Swraid=0.
 	// +optional
-	// +kubebuilder:default=1
+	// +kubebuilder:default=0
 	// +kubebuilder:validation:Enum=0;1;5;6;10;
 	SwraidLevel int `json:"swraidLevel,omitempty"`
 }
