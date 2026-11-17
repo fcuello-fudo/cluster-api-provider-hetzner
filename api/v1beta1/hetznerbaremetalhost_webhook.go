@@ -19,6 +19,7 @@ package v1beta1
 import (
 	"context"
 	"fmt"
+	"net"
 
 	"k8s.io/apimachinery/pkg/util/validation/field"
 	ctrl "sigs.k8s.io/controller-runtime"
@@ -58,7 +59,7 @@ var _ admission.Validator[*HetznerBareMetalHost] = &hetznerBareMetalHostWebhook{
 
 // ValidateCreate implements admission.Validator[*HetznerBareMetalHost] so a webhook will be registered for the type.
 func (hw *hetznerBareMetalHostWebhook) ValidateCreate(ctx context.Context, host *HetznerBareMetalHost) (admission.Warnings, error) {
-	var allErrs field.ErrorList
+	allErrs := validateInternalIP(host)
 
 	hetznerBareMetalHostList := &HetznerBareMetalHostList{}
 	if err := hw.c.List(ctx, hetznerBareMetalHostList, &client.ListOptions{}); err != nil {
@@ -78,7 +79,7 @@ func (hw *hetznerBareMetalHostWebhook) ValidateCreate(ctx context.Context, host 
 
 // ValidateUpdate implements admission.Validator[*HetznerBareMetalHost] so a webhook will be registered for the type.
 func (*hetznerBareMetalHostWebhook) ValidateUpdate(_ context.Context, oldHost, newHost *HetznerBareMetalHost) (admission.Warnings, error) {
-	var allErrs field.ErrorList
+	allErrs := validateInternalIP(newHost)
 
 	if newHost.Spec.ServerID != oldHost.Spec.ServerID {
 		allErrs = append(allErrs,
@@ -92,4 +93,21 @@ func (*hetznerBareMetalHostWebhook) ValidateUpdate(_ context.Context, oldHost, n
 // ValidateDelete implements admission.Validator[*HetznerBareMetalHost] so a webhook will be registered for the type.
 func (*hetznerBareMetalHostWebhook) ValidateDelete(context.Context, *HetznerBareMetalHost) (admission.Warnings, error) {
 	return nil, nil
+}
+
+// validateInternalIP checks that the InternalIPAnnotation, if set, is a private IPv4 address without prefix length.
+func validateInternalIP(host *HetznerBareMetalHost) field.ErrorList {
+	internalIP, ok := host.GetAnnotations()[InternalIPAnnotation]
+	if !ok {
+		return nil
+	}
+
+	ip := net.ParseIP(internalIP)
+	if ip == nil || ip.To4() == nil || !ip.IsPrivate() {
+		return field.ErrorList{
+			field.Invalid(field.NewPath("metadata", "annotations").Key(InternalIPAnnotation), internalIP, "must be a private IPv4 address without prefix length"),
+		}
+	}
+
+	return nil
 }

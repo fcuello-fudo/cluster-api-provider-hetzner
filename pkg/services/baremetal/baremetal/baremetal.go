@@ -1073,6 +1073,14 @@ func nodeAddresses(host *infrav1.HetznerBareMetalHost, bareMetalMachineName stri
 		})
 	}
 
+	// The internal IP is configured after provisioning, so it is not part of the hardware details.
+	if internalIP := host.InternalIP(); internalIP != "" {
+		addrs = append(addrs, clusterv1beta1.MachineAddress{
+			Type:    clusterv1beta1.MachineInternalIP,
+			Address: internalIP,
+		})
+	}
+
 	// Add hostname == bareMetalMachineName as well
 	addrs = append(
 		addrs,
