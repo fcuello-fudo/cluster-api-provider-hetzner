@@ -423,6 +423,7 @@ var _ = Describe("Test NodeAddresses", func() {
 	DescribeTable("Test NodeAddress",
 		func(tc testCaseNodeAddress) {
 			nodeAddresses := nodeAddresses(tc.Host, "bm-machine", tc.HasOldStyle)
+			Expect(nodeAddresses).To(HaveLen(len(tc.ExpectedNodeAddresses)))
 			for i, address := range tc.ExpectedNodeAddresses {
 				Expect(nodeAddresses[i]).To(Equal(address))
 			}
@@ -491,6 +492,27 @@ var _ = Describe("Test NodeAddresses", func() {
 			},
 			HasOldStyle:           false,
 			ExpectedNodeAddresses: []clusterv1beta1.MachineAddress{addr1, addr3, addr4},
+		}),
+		Entry("internal IP annotation is added as InternalIP after the NIC addresses", testCaseNodeAddress{
+			Host: &infrav1.HetznerBareMetalHost{
+				ObjectMeta: metav1.ObjectMeta{
+					Annotations: map[string]string{infrav1.InternalIPAnnotation: "10.0.1.2"},
+				},
+				Spec: infrav1.HetznerBareMetalHostSpec{
+					Status: infrav1.ControllerGeneratedStatus{
+						HardwareDetails: &infrav1.HardwareDetails{
+							NIC: []infrav1.NIC{nic3},
+						},
+					},
+				},
+			},
+			HasOldStyle: false,
+			ExpectedNodeAddresses: []clusterv1beta1.MachineAddress{
+				addr5,
+				{Type: clusterv1beta1.MachineInternalIP, Address: "10.0.1.2"},
+				addr3,
+				addr4,
+			},
 		}),
 	)
 })

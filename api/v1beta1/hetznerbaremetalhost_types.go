@@ -54,6 +54,13 @@ const (
 
 	// IgnoreCheckDiskAnnotation indicates that the machine should get provisioned, even if CheckDisk fails.
 	IgnoreCheckDiskAnnotation = "capi.syself.com/ignore-check-disk"
+
+	// InternalIPAnnotation is a private IPv4 address of the host that is configured after
+	// provisioning, for example on a vSwitch, a VLAN or a VPN, so it is not part of the hardware
+	// details. CAPH does not configure it on the host: it is added to the InternalIP addresses of
+	// the HetznerBareMetalMachine, so the kubelet serving certificate can include it, and it is
+	// passed to cloud-init as the meta-data key "internal_ip".
+	InternalIPAnnotation = "capi.syself.com/internal-ip"
 )
 
 // RootDeviceHints holds the hints for specifying the storage location
@@ -379,6 +386,11 @@ func (sts ControllerGeneratedStatus) HasFatalError() bool {
 }
 
 // GetConditions returns the observations of the operational state of the HetznerBareMetalHost resource.
+// InternalIP returns the value of the InternalIPAnnotation, or "" if it is not set.
+func (host *HetznerBareMetalHost) InternalIP() string {
+	return host.GetAnnotations()[InternalIPAnnotation]
+}
+
 func (host *HetznerBareMetalHost) GetConditions() clusterv1beta1.Conditions {
 	return host.Spec.Status.Conditions
 }
