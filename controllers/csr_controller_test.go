@@ -17,6 +17,7 @@ limitations under the License.
 package controllers
 
 import (
+	"context"
 	"testing"
 
 	certificatesv1 "k8s.io/api/certificates/v1"
@@ -181,6 +182,46 @@ AgNJADBGAiEAjMlzuDr3YddabxkKF5Wm/xZgmAN8IbZMoqP7vvrl0mkCIQDrda1J
 		})
 		if (gotError != nil) != tt.expectError {
 			t.Fatalf("Testcase %q: got %v (%v), want %v.", tt.name, gotError != nil, gotError, tt.expectError)
+		}
+	}
+}
+
+func Test_getServerIDFromConstantHostname(t *testing.T) {
+	tests := []struct {
+		name          string
+		csrUserName   string
+		clusterName   string
+		expectCluster string
+		expectID      string
+	}{
+		{
+			name:          "constant hostname",
+			csrUserName:   "system:node:my-cluster-1234567",
+			clusterName:   "my-cluster",
+			expectCluster: "my-cluster",
+			expectID:      "1234567",
+		},
+		{
+			name:        "constant hostname of another cluster",
+			csrUserName: "system:node:other-cluster-1234567",
+			clusterName: "my-cluster",
+		},
+		{
+			name:        "machine name",
+			csrUserName: "system:node:my-cluster-md-0-abcde-fghij",
+			clusterName: "my-cluster",
+		},
+		{
+			name:        "machine name ending in digits",
+			csrUserName: "system:node:my-cluster-md-0-abcde-12345",
+			clusterName: "my-cluster",
+		},
+	}
+
+	for _, tt := range tests {
+		gotCluster, gotID := getServerIDFromConstantHostname(context.Background(), tt.csrUserName, tt.clusterName)
+		if gotCluster != tt.expectCluster || gotID != tt.expectID {
+			t.Fatalf("Testcase %q: got (%q, %q), want (%q, %q).", tt.name, gotCluster, gotID, tt.expectCluster, tt.expectID)
 		}
 	}
 }
