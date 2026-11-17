@@ -1916,7 +1916,7 @@ set -Eeuo pipefail
 mkdir -p /var/lib/cloud/seed/nocloud-net
 
 cat << 'EOF_POST_INSTALL_SCRIPT' > /var/lib/cloud/seed/nocloud-net/meta-data
-local-hostname: %s
+%s
 EOF_POST_INSTALL_SCRIPT
 
 cat << 'EOF_POST_INSTALL_SCRIPT' > /var/lib/cloud/seed/nocloud-net/user-data
@@ -1925,7 +1925,7 @@ EOF_POST_INSTALL_SCRIPT
 
 echo %q
 # end of install cloud-init data
-`, postInstallScript, s.scope.Hostname(), cloudInitData, PostInstallScriptFinished)
+`, postInstallScript, cloudInitMetaData(s.scope.Hostname(), s.scope.HetznerBareMetalHost.InternalIP()), cloudInitData, PostInstallScriptFinished)
 
 	if err := handleSSHError(sshClient.CreatePostInstallScript(ctx, postInstallScript)); err != nil {
 		return actionError{err: fmt.Errorf("failed to create post install script %s: %w", postInstallScript, err)}
@@ -2990,4 +2990,14 @@ func createRebootEvent(ctx context.Context, host *infrav1.HetznerBareMetalHost, 
 	logger := ctrl.LoggerFrom(ctx)
 	logger.Info(msg, "reason", reason, "host", host.Name)
 	return msg
+}
+
+// cloudInitMetaData returns the content of the cloud-init NoCloud meta-data file.
+// The internal IP is only added when set, as "internal_ip".
+func cloudInitMetaData(hostName, internalIP string) string {
+	metaData := fmt.Sprintf("local-hostname: %s", hostName)
+	if internalIP != "" {
+		metaData += fmt.Sprintf("\ninternal_ip: %s", internalIP)
+	}
+	return metaData
 }

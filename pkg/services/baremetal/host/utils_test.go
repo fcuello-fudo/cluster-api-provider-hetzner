@@ -270,3 +270,13 @@ var _ = Describe("hasJustRebooted", func() {
 		Expect(svc.hasJustRebooted()).To(BeFalse())
 	})
 })
+
+var _ = Describe("cloudInitMetaData", func() {
+	It("only has the hostname when there is no internal IP", func() {
+		Expect(cloudInitMetaData("test-host-1", "")).To(Equal("local-hostname: test-host-1"))
+	})
+
+	It("adds the internal IP", func() {
+		Expect(cloudInitMetaData("test-host-1", "10.0.1.2")).To(Equal("local-hostname: test-host-1\ninternal_ip: 10.0.1.2"))
+	})
+})
